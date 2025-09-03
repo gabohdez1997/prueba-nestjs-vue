@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend-dev
     env_file:
-      - .env                    # main file (root)
+      - .env                   # main file (root)
       - ./backend/.env         # specific file for the backend
     environment:
       - DATABASE_HOST=localhost
@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-dev
     env_file:
-      - .env                    # main file (root)
+      - .env                   # main file (root)
       - ./frontend/.env        # specific file for the frontend
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
