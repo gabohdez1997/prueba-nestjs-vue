@@ -8,6 +8,8 @@ Se te proporciona un monorepo que contiene una aplicación base con la funcional
 
 Tu misión es implementar el flujo completo de inicio de sesión (login) en la aplicación. Deberás desarrollar tanto la lógica en el backend para validar credenciales y generar tokens, como la interfaz en el frontend para que los usuarios puedan iniciar sesión y acceder a una ruta protegida.
 
+Una vez completado el sistema de autenticación, implementarás una funcionalidad adicional: un sistema de visualización y gestión de sprites de Pokémon que utilizará WebSockets para comunicación en tiempo real.
+
 ## Flujo Esperado
 
 El flujo de autenticación que debes implementar se detalla en el siguiente diagrama. Es crucial que tu solución siga esta secuencia de pasos para ser considerada correcta.
@@ -57,11 +59,79 @@ A continuación se detallan las tareas que debes completar en cada parte del pro
    - En la vista de "Perfil", realiza una petición GET a `/auth/me` enviando el `accessToken` en la cabecera `Authorization`.
    - Muestra en pantalla la información del usuario (`username`, `userID`) que recibas del backend.
 
+## Tarea Adicional: Aplicación de Visualización y Gestión de Sprites de Pokémon
+
+Una vez completado el sistema de autenticación, deberás implementar una funcionalidad adicional que permita a los usuarios autenticados descargar y visualizar sprites de Pokémon al azar. Esta funcionalidad utilizará WebSockets para comunicación en tiempo real entre el frontend y backend.
+
+### Objetivo extra (no obligatorio).
+
+Crear una aplicación web que permita a los usuarios descargar y visualizar sprites de Pokémon al azar. La aplicación usará Vue.js para el frontend y NestJS para el backend, comunicándose ambos a través de WebSocket.
+
+### Requerimientos Generales
+
+- **Frontend**: Utilizar Vue.js para implementar un botón que, al ser pulsado, inicie la descarga de un sprite de Pokémon al azar. Los sprites descargados se mostrarán en una galería que permitirá al usuario eliminar los que desee.
+- **Backend**: Emplear NestJS para manejar las solicitudes y enviar las imágenes descargadas al cliente mediante WebSocket.
+
+### ✅ Especificaciones Detalladas
+
+#### Backend (NestJS)
+
+1. **Configuración de WebSocket**:
+   - Configurar un Gateway WebSocket en NestJS para manejar conexiones en tiempo real.
+   - Implementar autenticación WebSocket utilizando los JWT generados en el sistema de login.
+
+2. **Endpoint de Descarga**:
+   - Crear un endpoint para procesar solicitudes de descarga de sprites de Pokémon.
+   - Descargar un sprite al azar desde la PokeAPI (https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon).
+   - Enviar el sprite descargado al frontend a través de WebSocket.
+
+3. **Gestión de Sprites**:
+   - Implementar funcionalidad para almacenar temporalmente los sprites descargados.
+   - Crear endpoint para eliminar sprites específicos.
+
+#### Frontend (Vue.js)
+
+1. **Interfaz de Usuario**:
+   - Diseñar una interfaz dentro del área autenticada que incluya un botón para solicitar la descarga de sprites.
+   - Crear un área para visualizar los sprites descargados en formato de galería.
+
+2. **Visualización de Sprites**:
+   - Mostrar los sprites de Pokémon en una galería dentro de la interfaz.
+   - Permitir la eliminación de sprites individuales por parte del usuario.
+   - Mostrar información básica del Pokémon (nombre, ID) junto con el sprite.
+
+3. **Comunicación WebSocket**:
+   - Establecer una conexión WebSocket autenticada para recibir los sprites descargados del backend.
+   - Manejar eventos de conexión, desconexión y recepción de datos.
+   - Implementar manejo de errores para conexiones WebSocket.
+
+
+#### Dockerización
+
+- Actualizar la configuración existente de Docker para incluir las nuevas dependencias.
+- Asegurar que los WebSockets funcionen correctamente en el entorno containerizado.
+- Configurar docker-compose para facilitar el despliegue completo de la aplicación.
+
+### Entregables Adicionales
+
+- Código fuente completo de la funcionalidad de Pokémon sprites integrada con el sistema de autenticación.
+- Documentación sobre cómo usar la nueva funcionalidad.
+
 ## Criterios de Evaluación
 
+### Funcionalidad Base (Autenticación)
 - **Funcionalidad**: El flujo completo de login y acceso a rutas protegidas debe funcionar como se espera.
-- **Calidad del Código**: Se valorará un código limpio, legible, bien estructurado y que siga las buenas prácticas de cada framework.
 - **Seguridad**: Correcta implementación de la comparación de contraseñas y del uso de JWT para proteger rutas.
-- **Manejo de Errores**: La aplicación debe gestionar correctamente tanto los casos de éxito como los de error (ej. credenciales incorrectas, token inválido).
+
+### Funcionalidad Adicional (Pokémon Sprites)
+- **Comunicación WebSocket**: Correcta implementación de WebSockets con autenticación JWT.
+- **Integración con APIs Externas**: Uso adecuado de la PokeAPI para obtener sprites de Pokémon.
+- **Gestión de Estado**: Manejo eficiente del estado de los sprites en el frontend.
+
+### Criterios Generales
+- **Calidad del Código**: Se valorará un código limpio, legible, bien estructurado y que siga las buenas prácticas de cada framework.
+- **Manejo de Errores**: La aplicación debe gestionar correctamente tanto los casos de éxito como los de error (ej. credenciales incorrectas, token inválido, errores de conexión WebSocket).
+- **Arquitectura**: Separación clara de responsabilidades entre componentes y servicios.
+- **Experiencia de Usuario**: Interfaz intuitiva y responsiva para ambas funcionalidades.
 
 ¡Mucha suerte!
