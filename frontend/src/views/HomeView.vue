@@ -11,8 +11,8 @@
     <ul>
       <li>Sistema de autenticación completo</li>
       <li>Rutas protegidas</li>
-      <li>Integración con WebSockets (próximamente)</li>
-      <li>Gestión de sprites de Pokémon (próximamente)</li>
+      <li>Integración con WebSockets</li>
+      <li>Gestión de sprites de Pokémon</li>
     </ul>
 
     <div>
