@@ -76,14 +76,14 @@ onMounted(() => {
         <ul>
           <li>Ver perfil de usuario</li>
           <li>Acceso a rutas protegidas</li>
-          <li>Gestión de sprites de Pokémon (próximamente)</li>
+          <li>Gestión de sprites de Pokémon</li>
         </ul>
       </div>
 
       <div>
         <h3>Sección de Pokémon Sprites:</h3>
         <p><em>Esta sección estará disponible una vez implementado el sistema de WebSockets</em></p>
-        <button disabled>Descargar Sprite de Pokémon (Próximamente)</button>
+        <button disabled>Descargar Sprite de Pokémon</button>
       </div>
 
       <button @click="handleLogout">
