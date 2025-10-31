@@ -1,119 +1,93 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-const username = ref('')
-const password = ref('')
-const error = ref('')
-const loading = ref(false)
-
-const handleLogin = async () => {
-  if (!username.value || !password.value) {
-    error.value = 'Por favor, completa todos los campos'
-    return
-  }
-
-  loading.value = true
-  error.value = ''
-
-  try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (response.ok) {
-      // Guardar token en localStorage
-      localStorage.setItem('accessToken', data.accessToken)
-      
-      // Redirigir a página protegida
-      router.push('/dashboard')
-    } else {
-      error.value = data.message || 'Error al iniciar sesión'
-    }
-  } catch (err) {
-    error.value = 'Error de conexión'
-  } finally {
-    loading.value = false
-  }
-}
-</script>
-
 <template>
-  <div>
-    <h1>Iniciar Sesión</h1>
-    
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label for="username">Usuario:</label>
-        <input
-          id="username"
-          v-model="username"
-          type="text"
-          required
-        />
+  <div
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4"
+  >
+    <div class="max-w-md w-full bg-white rounded-lg shadow-2xl p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Bienvenido</h1>
+        <p class="text-gray-600">Inicia sesión para continuar</p>
       </div>
 
-      <div>
-        <label for="password">Contraseña:</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          required
-        />
+      <form @submit.prevent="handleSubmit" class="space-y-6">
+        <!-- Username -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+            Usuario
+          </label>
+          <input
+            id="username"
+            v-model="form.username"
+            type="text"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            placeholder="Ingresa tu usuario"
+          />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Contraseña
+          </label>
+          <input
+            id="password"
+            v-model="form.password"
+            type="password"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            placeholder="Ingresa tu contraseña"
+          />
+        </div>
+
+        <!-- Error Message -->
+        <div
+          v-if="authStore.error"
+          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        >
+          {{ authStore.error }}
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          :disabled="authStore.isLoading"
+          class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          <span v-if="!authStore.isLoading">Iniciar Sesión</span>
+          <span v-else>Cargando...</span>
+        </button>
+      </form>
+
+      <!-- Info -->
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <p class="text-sm text-gray-700 text-center">
+          <strong>Usuario de prueba:</strong><br />
+          Usuario: admin<br />
+          Contraseña: admin123
+        </p>
       </div>
-
-      <div v-if="error">
-        <p style="color: red;">{{ error }}</p>
-      </div>
-
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
-      </button>
-    </form>
-
-    <p>
-      ¿No tienes cuenta? 
-      <router-link to="/register">Regístrate aquí</router-link>
-    </p>
+    </div>
   </div>
 </template>
 
-<style scoped>
-/* Sin estilos como solicitado */
-div {
-  margin: 10px 0;
-}
+<script setup lang="ts">
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
-label {
-  display: block;
-  margin-bottom: 5px;
-}
+const router = useRouter()
+const authStore = useAuthStore()
 
-input {
-  width: 200px;
-  padding: 5px;
-  margin-bottom: 10px;
-}
+const form = reactive({
+  username: '',
+  password: '',
+})
 
-button {
-  padding: 8px 16px;
-  margin: 10px 0;
-}
+const handleSubmit = async () => {
+  const success = await authStore.login(form.username, form.password)
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  if (success) {
+    router.push('/profile')
+  }
 }
-</style>
+</script>
