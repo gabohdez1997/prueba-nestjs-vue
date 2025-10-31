@@ -5,9 +5,9 @@
 <template>
   <div>
     <h1>Bienvenido a la Aplicación</h1>
-    
+
     <p>Esta es una prueba técnica full-stack que incluye:</p>
-    
+
     <ul>
       <li>Sistema de autenticación completo</li>
       <li>Rutas protegidas</li>
@@ -20,11 +20,11 @@
       <router-link to="/login">
         <button>Iniciar Sesión</button>
       </router-link>
-      
+
       <router-link to="/register">
         <button>Registrarse</button>
       </router-link>
-      
+
       <router-link to="/dashboard">
         <button>Panel de Usuario (Requiere autenticación)</button>
       </router-link>
@@ -38,7 +38,8 @@ div {
   margin: 10px 0;
 }
 
-h1, h2 {
+h1,
+h2 {
   margin: 15px 0 10px 0;
 }
 
