@@ -60,25 +60,40 @@ const handleRegister = async () => {
 <template>
   <div>
     <h1>Registro de Usuario</h1>
-
+    
     <form @submit.prevent="handleRegister">
       <div>
         <label for="username">Usuario:</label>
-        <input id="username" v-model="username" type="text" required />
+        <input
+          id="username"
+          v-model="username"
+          type="text"
+          required
+        />
       </div>
 
       <div>
         <label for="password">Contraseña:</label>
-        <input id="password" v-model="password" type="password" required />
+        <input
+          id="password"
+          v-model="password"
+          type="password"
+          required
+        />
       </div>
 
       <div>
         <label for="confirmPassword">Confirmar Contraseña:</label>
-        <input id="confirmPassword" v-model="confirmPassword" type="password" required />
+        <input
+          id="confirmPassword"
+          v-model="confirmPassword"
+          type="password"
+          required
+        />
       </div>
 
       <div v-if="error">
-        <p style="color: red">{{ error }}</p>
+        <p style="color: red;">{{ error }}</p>
       </div>
 
       <button type="submit" :disabled="loading">
@@ -87,7 +102,7 @@ const handleRegister = async () => {
     </form>
 
     <p>
-      ¿Ya tienes cuenta?
+      ¿Ya tienes cuenta? 
       <router-link to="/login">Inicia sesión aquí</router-link>
     </p>
   </div>
