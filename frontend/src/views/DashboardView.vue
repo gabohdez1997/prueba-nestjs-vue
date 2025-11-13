@@ -10,7 +10,7 @@ const error = ref('')
 
 const fetchUserProfile = async () => {
   const token = localStorage.getItem('accessToken')
-
+  
   if (!token) {
     router.push('/login')
     return
@@ -20,7 +20,7 @@ const fetchUserProfile = async () => {
     const response = await fetch('/api/auth/me', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
@@ -53,18 +53,18 @@ onMounted(() => {
 <template>
   <div>
     <h1>Panel de Usuario</h1>
-
+    
     <div v-if="loading">
       <p>Cargando...</p>
     </div>
 
     <div v-else-if="error">
-      <p style="color: red">{{ error }}</p>
+      <p style="color: red;">{{ error }}</p>
     </div>
 
     <div v-else-if="user">
       <h2>Bienvenido, {{ user.username }}!</h2>
-
+      
       <div>
         <h3>Información del Usuario:</h3>
         <p><strong>ID:</strong> {{ user.userId || user.id }}</p>
@@ -86,7 +86,9 @@ onMounted(() => {
         <button disabled>Descargar Sprite de Pokémon</button>
       </div>
 
-      <button @click="handleLogout">Cerrar Sesión</button>
+      <button @click="handleLogout">
+        Cerrar Sesión
+      </button>
     </div>
   </div>
 </template>
@@ -97,9 +99,7 @@ div {
   margin: 10px 0;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   margin: 15px 0 10px 0;
 }
 
