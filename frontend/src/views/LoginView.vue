@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const username = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+
+const form = reactive({
+  username: '',
+  password: '',
+});
+
 
 const handleLogin = async () => {
   if (!username.value || !password.value) {
@@ -19,27 +29,15 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value,
-      }),
+    const success = await authStore.login({
+      username: username.value,
+      password: password.value,
     })
 
-    const data = await response.json()
-
-    if (response.ok) {
-      // Guardar token en localStorage
-      localStorage.setItem('accessToken', data.accessToken)
-      
-      // Redirigir a página protegida
-      router.push('/dashboard')
+    if (success) {
+      router.push('/Dashboard')
     } else {
-      error.value = data.message || 'Error al iniciar sesión'
+      error.value = authStore.loginError || 'Error al iniciar sesión'
     }
   } catch (err) {
     error.value = 'Error de conexión'
@@ -117,3 +115,5 @@ button:disabled {
   cursor: not-allowed;
 }
 </style>
+
+

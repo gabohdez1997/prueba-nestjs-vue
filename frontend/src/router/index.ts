@@ -1,28 +1,13 @@
+
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import { useAuthStore } from '@/stores/auth'
 
-// Guard para rutas protegidas
-const requireAuth = (to: any, from: any, next: any) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    next()
-  } else {
-    next('/login')
-  }
-}
+ 
 
-// Guard para rutas de invitados (login/register)
-const requireGuest = (to: any, from: any, next: any) => {
-  const token = localStorage.getItem('accessToken')
-  if (!token) {
-    next()
-  } else {
-    next('/dashboard')
-  }
-}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,21 +21,41 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      beforeEnter: requireGuest
+      
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView,
-      beforeEnter: requireGuest
+      
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
-      beforeEnter: requireAuth
+      meta: {
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/',
+      redirect: '/perfil',
     }
   ],
 })
+
+// Guard para rutas protegidas
+router.beforeEach(async (to, from, next) => {
+  const authStore =useAuthStore();
+  const requiresAuth = to.meta.requiresAuth;
+
+  if (requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login' });
+  } else if (authStore.isAuthenticated && to.name === 'login') {
+    next({ name: 'perfil' });
+  } else {
+    next();
+  }
+});
 
 export default router
