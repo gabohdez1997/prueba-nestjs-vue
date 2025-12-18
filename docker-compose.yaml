@@ -1,85 +1,58 @@
 services:
-  # PostgreSQL Database
+  # Base de datos
   db:
     image: postgres:17-alpine
-    container_name: postgres-dev
+    container_name: daka-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-technical-test_db}
-      POSTGRES_USER: ${POSTGRES_USER:-technical-test}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      POSTGRES_DB: technical-test_db
+      POSTGRES_USER: technical-test
+      POSTGRES_PASSWORD: password123
     ports:
-      - "${DATABASE_PORT:-5433}:5432"
+      - "5433:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-    networks:
-      - network
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-technical-test} -d ${POSTGRES_DB:-technical-test_db}"]
+      test: ["CMD-SHELL", "pg_isready -U technical-test -d technical-test_db"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
 
-  # Backend Service
+  # Backend (NestJS)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: backend-dev
-    env_file:
-      - .env                   # main file (root)
-      - ./backend/.env         # specific file for the backend
-    environment:
-      - DATABASE_HOST=localhost
-      - DATABASE_PORT=5432
+    container_name: daka-backend
     ports:
-      - "${BACKEND_PORT:-3000}:3000"
+      - "3000:3000"
+    environment:
+      # IMPORTANTE: Aquí cambiamos localhost por 'db'
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=technical-test
+      - DATABASE_PASSWORD=password123
+      - DATABASE_NAME=technical-test_db
+      - JWT_SECRET=clave_secreta_para_docker
     volumes:
       - ./backend:/usr/src/app
-      - backend_node_modules:/usr/src/app/node_modules
+      - /usr/src/app/node_modules
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # Frontend Service
+  # Frontend (Vue)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend-dev
-    env_file:
-      - .env                   # main file (root)
-      - ./frontend/.env        # specific file for the frontend
+    container_name: daka-frontend
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
-    depends_on:
-      - backend
-    restart: unless-stopped
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+      - /app/node_modules
+    # Esto permite que entres desde Windows
+    command: ["npm", "run", "dev", "--", "--host"] 
 
-# Named Volumes
 volumes:
   postgres_dev_data:
-    name: postgres_dev_data
-  backend_node_modules:
-    name: backend_node_modules
-  frontend_node_modules:
-    name: frontend_node_modules
-
-networks: 
-  network:
-    driver: bridge
