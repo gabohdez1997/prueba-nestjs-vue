@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import { useAuthStore } from '@/stores/auth'
 
  
@@ -38,8 +39,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true }, // Ruta protegida
+    },
+    {
       path: '/',
-      redirect: '/perfil',
+      redirect: '/dashboard',
     }
   ],
 })
@@ -52,7 +59,7 @@ router.beforeEach(async (to, from, next) => {
   if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' });
   } else if (authStore.isAuthenticated && to.name === 'login') {
-    next({ name: 'perfil' });
+    next({ name: 'dashboard' });
   } else {
     next();
   }

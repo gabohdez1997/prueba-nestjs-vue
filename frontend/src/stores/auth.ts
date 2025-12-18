@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
 
                 this.user = { username, userId };
 
-                router.push('/Profile');
+                router.push('/dashboard');
             } catch (error: any) {
                 const errorMessage = error.response?.data?.message || 'error de conexion, intentelo de nuevo.';
                 this.loginError = errorMessage;

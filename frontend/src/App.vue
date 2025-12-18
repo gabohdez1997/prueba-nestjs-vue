@@ -1,33 +1,30 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth' // 1. Importamos la tienda
 
 const router = useRouter()
-const route = useRoute()
-
-const isAuthenticated = computed(() => {
-  return !!localStorage.getItem('accessToken')
-})
+const authStore = useAuthStore() // 2. La usamos
 
 const handleLogout = () => {
-  localStorage.removeItem('accessToken')
-  router.push('/login')
+  authStore.logout() // Usamos la acción de la tienda
 }
 </script>
 
 <template>
   <div id="app">
-    <!-- Navegación simple -->
+    <!-- Navegación -->
     <nav>
       <router-link to="/">Inicio</router-link>
       
-      <template v-if="!isAuthenticated">
+      <!-- 3. Usamos la propiedad reactiva de la tienda -->
+      <template v-if="!authStore.isAuthenticated">
         <router-link to="/login">Login</router-link>
         <router-link to="/register">Registro</router-link>
       </template>
       
       <template v-else>
         <router-link to="/dashboard">Dashboard</router-link>
+        <router-link to="/profile">Mi Perfil</router-link>
         <a href="#" @click.prevent="handleLogout">Cerrar Sesión</a>
       </template>
     </nav>

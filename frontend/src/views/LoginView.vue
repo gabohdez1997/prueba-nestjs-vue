@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-
-
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -13,34 +11,42 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 
-const form = reactive({
-  username: '',
-  password: '',
-});
-
-
 const handleLogin = async () => {
+  // Limpiamos errores previos
+  error.value = ''
+
+  // 1. Validaciones locales (Frontend)
   if (!username.value || !password.value) {
-    error.value = 'Por favor, completa todos los campos'
+    error.value = '⚠️ Por favor, completa todos los campos.'
     return
   }
 
   loading.value = true
-  error.value = ''
 
   try {
-    const success = await authStore.login({
+    // Intentamos loguear
+    await authStore.login({
       username: username.value,
       password: password.value,
     })
 
-    if (success) {
-      router.push('/Dashboard')
+    // Si no lanza error, redirigimos
+    router.push('/dashboard')
+
+  } catch (err: any) {
+    console.error("Error de login:", err)
+
+    // 2. Manejo inteligente de errores
+    if (authStore.loginError) {
+        // Si el Store capturó un mensaje del backend (ej: "Credenciales Invalidas")
+        error.value = `❌ ${authStore.loginError}`
+    } else if (err.message === 'Network Error' || !err.response) {
+        // Si no hubo respuesta del servidor (Backend apagado)
+        error.value = '🔌 No se pudo conectar con el servidor. Intenta más tarde.'
     } else {
-      error.value = authStore.loginError || 'Error al iniciar sesión'
+        // Cualquier otro error
+        error.value = '❌ Ocurrió un error inesperado al iniciar sesión.'
     }
-  } catch (err) {
-    error.value = 'Error de conexión'
   } finally {
     loading.value = false
   }
@@ -48,40 +54,44 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="login-container">
     <h1>Iniciar Sesión</h1>
     
-    <form @submit.prevent="handleLogin">
-      <div>
+    <form @submit.prevent="handleLogin" class="login-form">
+      <div class="form-group">
         <label for="username">Usuario:</label>
         <input
           id="username"
           v-model="username"
           type="text"
-          required
+          placeholder="Ej: sofia"
+          :disabled="loading"
         />
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="password">Contraseña:</label>
         <input
           id="password"
           v-model="password"
           type="password"
-          required
+          placeholder="******"
+          :disabled="loading"
         />
       </div>
 
-      <div v-if="error">
-        <p style="color: red;">{{ error }}</p>
+      <!-- Caja de Error Mejorada -->
+      <div v-if="error" class="error-alert">
+        {{ error }}
       </div>
 
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+      <button type="submit" :disabled="loading" class="btn-login">
+        <span v-if="loading">Verificando... ⏳</span>
+        <span v-else>Entrar ➜</span>
       </button>
     </form>
 
-    <p>
+    <p class="register-link">
       ¿No tienes cuenta? 
       <router-link to="/register">Regístrate aquí</router-link>
     </p>
@@ -89,31 +99,78 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
-/* Sin estilos como solicitado */
-div {
-  margin: 10px 0;
+/* Estilos un poco más limpios para que se vea mejor la validación */
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.login-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.form-group {
+  margin-bottom: 15px;
 }
 
 label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
 }
 
 input {
-  width: 200px;
-  padding: 5px;
-  margin-bottom: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Para que el padding no rompa el ancho */
 }
 
-button {
-  padding: 8px 16px;
-  margin: 10px 0;
+input:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
-button:disabled {
-  opacity: 0.6;
+/* Estilo para la alerta de error */
+.error-alert {
+  background-color: #ffe6e6;
+  color: #d8000c;
+  border: 1px solid #cc0000;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-login:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-login:disabled {
+  background-color: #ccc;
   cursor: not-allowed;
 }
+
+.register-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
 </style>
-
-
