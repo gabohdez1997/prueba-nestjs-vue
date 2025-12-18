@@ -34,7 +34,8 @@ export class PokemonGateway implements OnGatewayConnection {
       // Limpiamos el "Bearer " si viene en el string
       const cleanToken = token.replace('Bearer ', '');
       // Validamos el token. Si falla, lanza error y va al catch
-      this.jwtService.verify(cleanToken, { secret: 'una_clave_super_secreta_123' }); // Ojo: Usa la misma clave del .env o auth.module
+      //this.jwtService.verify(cleanToken, { secret: 'una_clave_super_secreta_123' }); // Ojo: Usa la misma clave del .env o auth.module
+      this.jwtService.verify(cleanToken);
       console.log(`Cliente conectado: ${client.id}`);
     } catch (e) {
       console.log('Cliente desconectado: Token inválido');
